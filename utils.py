@@ -1,35 +1,25 @@
-import json
+import time
+import requests
+from requests.exceptions import RequestException
 
-
-def load_json(file_path):
-    """Loads a JSON file and returns its contents as a dictionary."""
-    try:
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-            return data
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f'Error loading JSON: {e}')
-        return None
-
-
-def save_json(data, file_path):
-    """Saves a dictionary as a JSON file."""
-    try:
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
-            print(f'Successfully saved data to {file_path}')
-    except IOError as e:
-        print(f'Error saving JSON: {e}')
-
-
-def update_dict(original, updates):
-    """Updates the original dictionary with values from the updates dictionary."""
-    if not isinstance(original, dict) or not isinstance(updates, dict):
-        raise ValueError('Both original and updates must be dictionaries.')
-    original.update(updates)
-    return original
-
-
-def pretty_print_json(data):
-    """Prints a dictionary as a formatted JSON string."""
-    print(json.dumps(data, indent=4))
+def retry_request(url, max_retries=3, delay=2):
+    """
+    Make a network request with retry logic.
+    
+    :param url: The URL to send the request to.
+    :param max_retries: Maximum number of retry attempts.
+    :param delay: Delay between attempts in seconds.
+    :return: Response object if successful, None if failed.
+    """
+    attempt = 0
+    while attempt < max_retries:
+        try:
+            response = requests.get(url)
+            response.raise_for_status()  # Raise an error for bad responses
+            return response
+        except RequestException as e:
+            print(f'Error on attempt {attempt + 1}: {e}')  
+            attempt += 1
+            time.sleep(delay)
+    print('Max retries reached. Request failed.')
+    return None
