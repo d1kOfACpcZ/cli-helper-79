@@ -1,27 +1,43 @@
-import time
-import requests
+import os
+import json
+import logging
 
-class NetworkError(Exception):
-    pass
+# Set up logging configuration
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def retry_on_failure(max_retries=3, delay=2):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            retries = 0
-            while retries < max_retries:
-                try:
-                    return func(*args, **kwargs)
-                except (requests.ConnectionError, requests.Timeout) as e:
-                    retries += 1
-                    print(f"Attempt {retries} failed: {e}")
-                    time.sleep(delay)
-                    if retries == max_retries:
-                        raise NetworkError(f"Max retries exceeded for {func.__name__}")
-        return wrapper
-    return decorator
+def read_json_file(filepath):
+    """Reads a JSON file and returns its contents as a dictionary."""
+    if not os.path.exists(filepath):
+        logging.error(f'File not found: {filepath}')
+        return None
+    with open(filepath, 'r', encoding='utf-8') as file:
+        try:
+            data = json.load(file)
+            logging.info(f'File read successfully: {filepath}')
+            return data
+        except json.JSONDecodeError:
+            logging.error(f'Error decoding JSON from file: {filepath}')
+            return None
 
-@retry_on_failure(max_retries=5, delay=3)
-def fetch_data(url):
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.json()
+
+def write_json_file(filepath, data):
+    """Writes a dictionary to a JSON file."""
+    with open(filepath, 'w', encoding='utf-8') as file:
+        json.dump(data, file, indent=4)
+        logging.info(f'File written successfully: {filepath}')
+
+
+def list_directory_files(directory):
+    """Lists all files in a given directory."""
+    try:
+        files = os.listdir(directory)
+        logging.info(f'Files listed successfully: {directory}')
+        return [f for f in files if os.path.isfile(os.path.join(directory, f))]
+    except FileNotFoundError:
+        logging.error(f'Directory not found: {directory}')
+        return []
+
+
+def sanitize_filename(filename):
+    """Sanitizes a given filename by removing illegal characters."""
+    return ''.join(c for c in filename if c.isalnum() or c in (' ', '.', '_')).rstrip()
