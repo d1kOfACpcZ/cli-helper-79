@@ -1,29 +1,37 @@
 import logging
 
-# Configure the logger settings for the application
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-class Logger:
-    def __init__(self, name):
-        self.logger = logging.getLogger(name)
+def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
+    """
+    Set up a logger with the specified name and log level.
 
-    def debug(self, msg):
-        self.logger.debug(msg)
+    Args:
+        name (str): The name of the logger.
+        level (int): The logging level (default is logging.INFO).
 
-    def info(self, msg):
-        self.logger.info(msg)
+    Returns:
+        logging.Logger: Configured logger instance.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
 
-    def warning(self, msg):
-        self.logger.warning(msg)
+    # Create console handler and set level
+    ch = logging.StreamHandler()
+    ch.setLevel(level)
 
-    def error(self, msg):
-        self.logger.error(msg)
+    # Create formatter and add it to the handler
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
 
-    def critical(self, msg):
-        self.logger.critical(msg)
+    # Add the handler to the logger
+    if not logger.hasHandlers():
+        logger.addHandler(ch)
 
-# Example usage of Logger class
+    return logger
+
+
 if __name__ == '__main__':
-    app_logger = Logger('cli_helper')
-    app_logger.info('This is an info message.')
-    app_logger.error('This is an error message.')
+    # Example usage
+    log = setup_logger('example_logger')
+    log.info('This is an info message.')
+    log.warning('This is a warning message.')
