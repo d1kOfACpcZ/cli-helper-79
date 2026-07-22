@@ -1,43 +1,32 @@
-import os
-import json
 import logging
 
-# Set up logging configuration
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure the logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def read_json_file(filepath):
-    """Reads a JSON file and returns its contents as a dictionary."""
-    if not os.path.exists(filepath):
-        logging.error(f'File not found: {filepath}')
-        return None
-    with open(filepath, 'r', encoding='utf-8') as file:
+class CLIHelper:
+    def __init__(self, name):
+        self.name = name
+        logger.info(f'CLIHelper initialized with name: {self.name}')
+
+    def greet(self):
+        greeting = f'Welcome to {self.name}!'
+        logger.info(greeting)
+        return greeting
+
+    def execute_command(self, command):
+        logger.info(f'Executing command: {command}')
         try:
-            data = json.load(file)
-            logging.info(f'File read successfully: {filepath}')
-            return data
-        except json.JSONDecodeError:
-            logging.error(f'Error decoding JSON from file: {filepath}')
+            # Simulating command execution
+            result = f'Executed: {command}'
+            logger.info(result)
+            return result
+        except Exception as e:
+            logger.error(f'Error executing command: {e}')
             return None
 
-
-def write_json_file(filepath, data):
-    """Writes a dictionary to a JSON file."""
-    with open(filepath, 'w', encoding='utf-8') as file:
-        json.dump(data, file, indent=4)
-        logging.info(f'File written successfully: {filepath}')
-
-
-def list_directory_files(directory):
-    """Lists all files in a given directory."""
-    try:
-        files = os.listdir(directory)
-        logging.info(f'Files listed successfully: {directory}')
-        return [f for f in files if os.path.isfile(os.path.join(directory, f))]
-    except FileNotFoundError:
-        logging.error(f'Directory not found: {directory}')
-        return []
-
-
-def sanitize_filename(filename):
-    """Sanitizes a given filename by removing illegal characters."""
-    return ''.join(c for c in filename if c.isalnum() or c in (' ', '.', '_')).rstrip()
+if __name__ == '__main__':
+    cli_helper = CLIHelper('My CLI Tool')
+    cli_helper.greet()
+    cli_helper.execute_command('list all')
+    cli_helper.execute_command('exit')
