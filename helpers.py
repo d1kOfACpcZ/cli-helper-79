@@ -1,32 +1,32 @@
 import json
 import os
+from collections import defaultdict
 
+def load_config(file_path, defaults):
+    """Load configuration from a JSON file with defaults."""
+    # Create a defaultdict to hold the merged configurations
+    config = defaultdict(lambda: None, defaults)
 
-def read_json_file(filepath):
-    """Reads a JSON file and returns a dictionary."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f'No such file: {filepath}')
-    with open(filepath, 'r') as f:
-        return json.load(f)
+    # If the config file exists, read the content
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as file:
+            try:
+                # Update the config with values from the file
+                file_config = json.load(file)
+                config.update(file_config)
+            except json.JSONDecodeError as e:
+                print(f'Error loading config: {e}')
+    else:
+        print(f'Config file {file_path} not found. Using defaults.')  
 
+    return dict(config)
 
-def write_json_file(filepath, data):
-    """Writes a dictionary to a JSON file."""
-    with open(filepath, 'w') as f:
-        json.dump(data, f, indent=4)
-
-
-def list_files(directory):
-    """Returns a list of files in a directory."""
-    if not os.path.exists(directory):
-        raise NotADirectoryError(f'No such directory: {directory}')
-    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
-
-
-def format_size(size):
-    """Converts bytes to a human-readable format."""
-    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-        if size < 1024:
-            return f'{size:.2f} {unit}'
-        size /= 1024
-    return f'{size:.2f} PB'
+# Example of default configuration
+if __name__ == '__main__':
+    default_config = {
+        'host': 'localhost',
+        'port': 8080,
+        'debug': False
+    }
+    config = load_config('config.json', default_config)
+    print(config)
