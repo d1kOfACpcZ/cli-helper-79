@@ -1,25 +1,43 @@
-import time
-import requests
-from requests.exceptions import RequestException
+import os
+import json
+from typing import Any, Dict
 
-def retry_request(url, max_retries=3, delay=2):
+class FileReadError(Exception):
+    pass
+
+class JSONDecodeError(Exception):
+    pass
+
+
+def read_json_file(file_path: str) -> Dict[str, Any]:
     """
-    Make a network request with retry logic.
-    
-    :param url: The URL to send the request to.
-    :param max_retries: Maximum number of retry attempts.
-    :param delay: Delay between attempts in seconds.
-    :return: Response object if successful, None if failed.
+    Reads a JSON file and returns its contents as a dictionary.
+    Raises:
+        FileReadError: If the file cannot be accessed.
+        JSONDecodeError: If the JSON is malformed.
     """
-    attempt = 0
-    while attempt < max_retries:
-        try:
-            response = requests.get(url)
-            response.raise_for_status()  # Raise an error for bad responses
-            return response
-        except RequestException as e:
-            print(f'Error on attempt {attempt + 1}: {e}')  
-            attempt += 1
-            time.sleep(delay)
-    print('Max retries reached. Request failed.')
-    return None
+    if not os.path.isfile(file_path):
+        raise FileReadError(f"File not found: {file_path}")
+
+    try:
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+    except json.JSONDecodeError:
+        raise JSONDecodeError(f"JSON decode error in file: {file_path}")
+    except Exception as e:
+        raise FileReadError(f"An error occurred: {str(e)}")
+
+    return data
+
+
+def save_json_file(data: Dict[str, Any], file_path: str) -> None:
+    """
+    Saves a dictionary to a JSON file.
+    Raises:
+        FileReadError: If the file cannot be accessed.
+    """
+    try:
+        with open(file_path, 'w') as file:
+            json.dump(data, file, indent=4)
+    except Exception as e:
+        raise FileReadError(f"Unable to save file: {str(e)}")
