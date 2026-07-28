@@ -1,32 +1,37 @@
-import json
-import os
-from collections import defaultdict
+import time
+import requests
 
-def load_config(file_path, defaults):
-    """Load configuration from a JSON file with defaults."""
-    # Create a defaultdict to hold the merged configurations
-    config = defaultdict(lambda: None, defaults)
 
-    # If the config file exists, read the content
-    if os.path.exists(file_path):
-        with open(file_path, 'r') as file:
-            try:
-                # Update the config with values from the file
-                file_config = json.load(file)
-                config.update(file_config)
-            except json.JSONDecodeError as e:
-                print(f'Error loading config: {e}')
-    else:
-        print(f'Config file {file_path} not found. Using defaults.')  
+def retry_network_operation(func, retries=3, delay=2, *args, **kwargs):
+    """
+    Retries a network operation if it fails.
+    :param func: The function to call.
+    :param retries: Number of retries before giving up.
+    :param delay: Delay between retries in seconds.
+    :param args: Positional arguments for the function.
+    :param kwargs: Keyword arguments for the function.
+    :return: The result of the function call.
+    """
+    for attempt in range(retries):
+        try:
+            return func(*args, **kwargs)
+        except requests.ConnectionError as e:
+            if attempt < retries - 1:
+                time.sleep(delay)
+                print(f'Retry {attempt + 1}/{retries} in {delay} seconds...')
+            else:
+                print('Max retries exceeded.
+                raise e
 
-    return dict(config)
+    return None
 
-# Example of default configuration
+
+# Example usage
 if __name__ == '__main__':
-    default_config = {
-        'host': 'localhost',
-        'port': 8080,
-        'debug': False
-    }
-    config = load_config('config.json', default_config)
-    print(config)
+    def fetch_data(url):
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+
+    url = 'https://api.example.com/data'
+    print(retry_network_operation(fetch_data, url=url))
