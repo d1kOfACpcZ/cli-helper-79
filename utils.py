@@ -1,43 +1,36 @@
-import os
 import json
-from typing import Any, Dict
-
-class FileReadError(Exception):
-    pass
-
-class JSONDecodeError(Exception):
-    pass
+import os
 
 
-def read_json_file(file_path: str) -> Dict[str, Any]:
-    """
-    Reads a JSON file and returns its contents as a dictionary.
-    Raises:
-        FileReadError: If the file cannot be accessed.
-        JSONDecodeError: If the JSON is malformed.
-    """
-    if not os.path.isfile(file_path):
-        raise FileReadError(f"File not found: {file_path}")
-
-    try:
-        with open(file_path, 'r') as file:
-            data = json.load(file)
-    except json.JSONDecodeError:
-        raise JSONDecodeError(f"JSON decode error in file: {file_path}")
-    except Exception as e:
-        raise FileReadError(f"An error occurred: {str(e)}")
-
-    return data
+def read_json(file_path):
+    """Reads a JSON file and returns its content as a dictionary."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"The file {file_path} does not exist.")
+    with open(file_path, 'r') as file:
+        return json.load(file)
 
 
-def save_json_file(data: Dict[str, Any], file_path: str) -> None:
-    """
-    Saves a dictionary to a JSON file.
-    Raises:
-        FileReadError: If the file cannot be accessed.
-    """
-    try:
-        with open(file_path, 'w') as file:
-            json.dump(data, file, indent=4)
-    except Exception as e:
-        raise FileReadError(f"Unable to save file: {str(e)}")
+def write_json(file_path, data):
+    """Writes a dictionary to a JSON file."""
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+
+
+def list_files(directory):
+    """Lists all files in the given directory."""
+    return [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+
+
+def merge_dictionaries(dict1, dict2):
+    """Merges two dictionaries into one."""
+    merged = dict1.copy()  # start with dict1's keys and values
+    merged.update(dict2)   # modifies merged with dict2's keys and values
+    return merged
+
+
+def generate_random_string(length=10):
+    """Generates a random string of fixed length."""
+    import random
+    import string
+    letters = string.ascii_letters
+    return ''.join(random.choice(letters) for i in range(length))
