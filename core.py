@@ -1,32 +1,37 @@
-import logging
+import json
+import os
 
-# Configure the logger
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+class ConfigLoader:
+    def __init__(self, default_config_path, env_config_path=None):
+        self.default_config_path = default_config_path
+        self.env_config_path = env_config_path or os.path.join(os.getcwd(), 'config.json')
+        self.config = self.load_config()
 
-class CLIHelper:
-    def __init__(self, name):
-        self.name = name
-        logger.info(f'CLIHelper initialized with name: {self.name}')
+    def load_config(self):
+        # Load default configuration
+        config = self.load_json(self.default_config_path)
 
-    def greet(self):
-        greeting = f'Welcome to {self.name}!'
-        logger.info(greeting)
-        return greeting
+        # Load environment-specific configuration if it exists
+        env_config = self.load_json(self.env_config_path)
+        if env_config:
+            config.update(env_config)
 
-    def execute_command(self, command):
-        logger.info(f'Executing command: {command}')
-        try:
-            # Simulating command execution
-            result = f'Executed: {command}'
-            logger.info(result)
-            return result
-        except Exception as e:
-            logger.error(f'Error executing command: {e}')
-            return None
+        return config
 
+    @staticmethod
+    def load_json(file_path):
+        # Load JSON file and return the data
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                return json.load(f)
+        return {}
+
+    def get(self, key, default=None):
+        # Retrieve a configuration value by key
+        return self.config.get(key, default)
+
+# Example usage
 if __name__ == '__main__':
-    cli_helper = CLIHelper('My CLI Tool')
-    cli_helper.greet()
-    cli_helper.execute_command('list all')
-    cli_helper.execute_command('exit')
+    loader = ConfigLoader('default_config.json')
+    api_key = loader.get('API_KEY', 'default_api_key')
+    print('API_KEY:', api_key)
