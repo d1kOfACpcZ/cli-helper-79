@@ -1,36 +1,35 @@
 import logging
-from logging.handlers import RotatingFileHandler
 
-# Logger setup with rotation
+# Configure the logger
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-def setup_logger(log_file='app.log', max_bytes=5*1024*1024, backup_count=5):
-    logger = logging.getLogger('my_logger')
-    logger.setLevel(logging.DEBUG)
-    
-    # Create a rotating file handler
-    handler = RotatingFileHandler(log_file, maxBytes=max_bytes, backupCount=backup_count)
-    handler.setLevel(logging.DEBUG)
-    
-    # Create a console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    
-    # Create a logging format
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
-    
-    # Add handlers to the logger
-    logger.addHandler(handler)
-    logger.addHandler(console_handler)
-    
-    return logger
+logger = logging.getLogger(__name__)
 
-# Example usage of the logger
+class Logger:
+    def __init__(self, name):
+        self.logger = logging.getLogger(name)
+
+    def debug(self, message):
+        self.logger.debug(message)
+
+    def info(self, message):
+        self.logger.info(message)
+
+    def warning(self, message):
+        self.logger.warning(message)
+
+    def error(self, message):
+        self.logger.error(message)
+
+    def critical(self, message):
+        self.logger.critical(message)
+
+# Example usage
 if __name__ == '__main__':
-    logger = setup_logger()
-    logger.debug('This is a debug message')
-    logger.info('This is an info message')
-    logger.warning('This is a warning message')
-    logger.error('This is an error message')
-    logger.critical('This is a critical message')
+    log = Logger('example_logger')
+    log.debug('This is a debug message')
+    log.info('This is an info message')
+    log.warning('This is a warning message')
+    log.error('This is an error message')
+    log.critical('This is a critical message')
