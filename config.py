@@ -1,31 +1,16 @@
-import json
 import os
 
-DEFAULT_CONFIG = {
-    'host': 'localhost',
-    'port': 8000,
-    'debug': False,
-    'log_level': 'INFO'
-}
-
-class ConfigLoader:
-    def __init__(self, config_file='config.json'):
-        self.config_file = config_file
-        self.config = DEFAULT_CONFIG.copy()
-        self.load_config()
-
-    def load_config(self):
-        if os.path.isfile(self.config_file):
-            with open(self.config_file, 'r') as file:
-                user_config = json.load(file)
-            self.config.update(user_config)
-
-    def get(self, key, default=None):
-        return self.config.get(key, default)
-
+class Config:
+    def __init__(self):
+        self.environment = os.getenv('ENVIRONMENT', 'development')
+        self.debug = self.environment == 'development'
+        self.database_uri = os.getenv('DATABASE_URI', 'sqlite:///default.db')
+        self.secret_key = os.getenv('SECRET_KEY', 'mysecret')
+        
     def __str__(self):
-        return json.dumps(self.config, indent=2)
+        return f'Config(environment={self.environment}, debug={self.debug}, database_uri={self.database_uri})'
 
+# Example of configuration loading
 if __name__ == '__main__':
-    loader = ConfigLoader()
-    print(loader)
+    config = Config()
+    print(config)
