@@ -1,38 +1,24 @@
-import os
+import time
+import random
 
-# Constants for file paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.join(BASE_DIR, 'config')
-LOG_PATH = os.path.join(BASE_DIR, 'logs')
+class Retry:
+    def __init__(self, max_attempts=3, delay=1, backoff=2):
+        self.max_attempts = max_attempts
+        self.delay = delay
+        self.backoff = backoff
 
-# File extensions
-TEXT_EXTENSION = '.txt'
-JSON_EXTENSION = '.json'
-CSV_EXTENSION = '.csv'
+    def execute(self, function, *args, **kwargs):
+        attempts = 0
+        while attempts < self.max_attempts:
+            try:
+                return function(*args, **kwargs)
+            except Exception as e:
+                attempts += 1
+                if attempts == self.max_attempts:
+                    raise e
+                time.sleep(self.delay)
+                self.delay *= self.backoff
 
-# Settings
-DEFAULT_ENCODING = 'utf-8'
-MAX_RETRIES = 5
-TIMEOUT_SECONDS = 30
-
-# Common messages
-ERROR_MESSAGE = 'An error occurred'
-SUCCESS_MESSAGE = 'Operation completed successfully'
-
-# Return codes
-EXIT_SUCCESS = 0
-EXIT_FAILURE = 1
-
-# Log levels
-LOG_LEVELS = {
-    'debug': 10,
-    'info': 20,
-    'warning': 30,
-    'error': 40,
-    'critical': 50
-}
-
-# API URLs
-API_BASE_URL = 'https://api.example.com'
-USER_ENDPOINT = '/users'
-POST_ENDPOINT = '/posts'
+# Usage example:
+# retry = Retry(max_attempts=5, delay=2)
+# result = retry.execute(some_network_function, arg1, arg2)
