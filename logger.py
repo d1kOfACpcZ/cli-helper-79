@@ -1,36 +1,33 @@
 import logging
 
-# Configure the logger
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-# Create a logger
-logger = logging.getLogger('cli_helper')
+def setup_logger(name: str, log_file: str, level: int = logging.DEBUG) -> logging.Logger:
+    """
+    Sets up a logger that writes to a specified log file and prints to console.
 
-def log_info(message):
-    """Logs an info message."""
-    logger.info(message)
+    Args:
+        name (str): The name of the logger.
+        log_file (str): The path to the log file.
+        level (int): The logging level (default is DEBUG).
+
+    Returns:
+        logging.Logger: Configured logger instance.
+    """
+    handler = logging.FileHandler(log_file)
+    handler.setLevel(level)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(handler)
+    logger.addHandler(logging.StreamHandler())  # also log to console
+
+    return logger
 
 
-def log_warning(message):
-    """Logs a warning message."""
-    logger.warning(message)
-
-
-def log_error(message):
-    """Logs an error message."""
-    logger.error(message)
-
-
-def log_debug(message):
-    """Logs a debug message, useful for debugging."""
-    logger.debug(message)
-
-
-def log_exception(exc):
-    """Logs an exception with traceback."""
-    logger.exception(exc)
-
-# Example usage
 if __name__ == '__main__':
-    log_info('Application started.')
+    log = setup_logger('example_logger', 'example.log')
+    log.info('This is an info message')
+    log.error('This is an error message')
+    log.debug('This is a debug message')
