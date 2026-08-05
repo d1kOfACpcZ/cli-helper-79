@@ -1,33 +1,31 @@
 import logging
 
+# Set up a logger for the application
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
-def setup_logger(name: str, log_file: str, level: int = logging.DEBUG) -> logging.Logger:
-    """
-    Sets up a logger that writes to a specified log file and prints to console.
+# Create a console handler and set level to debug
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
 
-    Args:
-        name (str): The name of the logger.
-        log_file (str): The path to the log file.
-        level (int): The logging level (default is DEBUG).
+# Create formatter
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
 
-    Returns:
-        logging.Logger: Configured logger instance.
-    """
-    handler = logging.FileHandler(log_file)
-    handler.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
+# Add console handler to logger
+logger.addHandler(ch)
 
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.addHandler(handler)
-    logger.addHandler(logging.StreamHandler())  # also log to console
+# Function to log performance metrics
 
-    return logger
+def log_performance_metrics(start_time, end_time, additional_info=''):
+    duration = end_time - start_time
+    logger.info(f'Performance metric: Duration: {duration} seconds {additional_info}') 
 
-
-if __name__ == '__main__':
-    log = setup_logger('example_logger', 'example.log')
-    log.info('This is an info message')
-    log.error('This is an error message')
-    log.debug('This is a debug message')
+# Example log message
+def sample_operation():
+    import time
+    start_time = time.time()
+	# Simulating operation
+    time.sleep(1)
+    end_time = time.time()
+    log_performance_metrics(start_time, end_time, 'for sample_operation')
