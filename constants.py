@@ -1,24 +1,18 @@
-import time
-import random
+class ErrorMessages:
+    INVALID_INPUT = 'Invalid input provided.'
+    CONNECTION_ERROR = 'Unable to connect to the server.'
+    TIMEOUT_ERROR = 'The request timed out.'
+    UNAUTHORIZED_ACCESS = 'Unauthorized access attempt detected.'
+    NOT_FOUND = 'Requested resource was not found.'
+    SERVER_ERROR = 'An internal server error occurred.'
+    SERVICE_UNAVAILABLE = 'The service is currently unavailable.'
 
-class Retry:
-    def __init__(self, max_attempts=3, delay=1, backoff=2):
-        self.max_attempts = max_attempts
-        self.delay = delay
-        self.backoff = backoff
+class StatusCodes:
+    SUCCESS = 200
+    BAD_REQUEST = 400
+    UNAUTHORIZED = 401
+    FORBIDDEN = 403
+    NOT_FOUND = 404
+    INTERNAL_SERVER_ERROR = 500
+    SERVICE_UNAVAILABLE = 503
 
-    def execute(self, function, *args, **kwargs):
-        attempts = 0
-        while attempts < self.max_attempts:
-            try:
-                return function(*args, **kwargs)
-            except Exception as e:
-                attempts += 1
-                if attempts == self.max_attempts:
-                    raise e
-                time.sleep(self.delay)
-                self.delay *= self.backoff
-
-# Usage example:
-# retry = Retry(max_attempts=5, delay=2)
-# result = retry.execute(some_network_function, arg1, arg2)
