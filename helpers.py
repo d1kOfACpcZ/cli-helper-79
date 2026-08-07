@@ -1,37 +1,35 @@
-import time
-import requests
+import json
+
+def load_json(file_path):
+    """Load JSON data from a file."""
+    try:
+        with open(file_path, 'r') as file:
+            return json.load(file)
+    except FileNotFoundError:
+        print(f'Error: The file {file_path} was not found.')
+        return None
+    except json.JSONDecodeError:
+        print(f'Error: The file {file_path} does not contain valid JSON.')
+        return None
+    except Exception as e:
+        print(f'An unexpected error occurred: {e}')
+        return None
 
 
-def retry_network_operation(func, retries=3, delay=2, *args, **kwargs):
-    """
-    Retries a network operation if it fails.
-    :param func: The function to call.
-    :param retries: Number of retries before giving up.
-    :param delay: Delay between retries in seconds.
-    :param args: Positional arguments for the function.
-    :param kwargs: Keyword arguments for the function.
-    :return: The result of the function call.
-    """
-    for attempt in range(retries):
-        try:
-            return func(*args, **kwargs)
-        except requests.ConnectionError as e:
-            if attempt < retries - 1:
-                time.sleep(delay)
-                print(f'Retry {attempt + 1}/{retries} in {delay} seconds...')
-            else:
-                print('Max retries exceeded.
-                raise e
-
-    return None
+def save_json(data, file_path):
+    """Save data to a JSON file."""
+    try:
+        with open(file_path, 'w') as file:
+            json.dump(data, file, indent=4)
+    except Exception as e:
+        print(f'Failed to write data to {file_path}: {e}')
 
 
-# Example usage
-if __name__ == '__main__':
-    def fetch_data(url):
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
+def merge_dicts(dict1, dict2):
+    """Merge two dictionaries, with dict2 overwriting dict1 keys."""
+    return {**dict1, **dict2}
 
-    url = 'https://api.example.com/data'
-    print(retry_network_operation(fetch_data, url=url))
+
+def pretty_print_json(data):
+    """Print JSON data in a formatted way."""
+    print(json.dumps(data, indent=4))
