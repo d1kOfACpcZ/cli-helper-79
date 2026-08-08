@@ -1,31 +1,36 @@
 import logging
 
-# Set up a logger for the application
+# Configure logging settings
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
-# Create a console handler and set level to debug
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+# Helper functions for logging
 
-# Create formatter
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
+def debug(message):
+    """Log a debug message."""
+    logger.debug(message)
 
-# Add console handler to logger
-logger.addHandler(ch)
 
-# Function to log performance metrics
+def info(message):
+    """Log an info message."""
+    logger.info(message)
 
-def log_performance_metrics(start_time, end_time, additional_info=''):
-    duration = end_time - start_time
-    logger.info(f'Performance metric: Duration: {duration} seconds {additional_info}') 
 
-# Example log message
-def sample_operation():
-    import time
-    start_time = time.time()
-	# Simulating operation
-    time.sleep(1)
-    end_time = time.time()
-    log_performance_metrics(start_time, end_time, 'for sample_operation')
+def warning(message):
+    """Log a warning message."""
+    logger.warning(message)
+
+
+def error(message):
+    """Log an error message."""
+    logger.error(message)
+
+
+def critical(message):
+    """Log a critical message."""
+    logger.critical(message)
